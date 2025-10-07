@@ -1,11 +1,12 @@
 package com.example.InventoryManagementSystem.service;
 
-import com.example.InventoryManagementSystem.entity.Order;
+import com.example.InventoryManagementSystem.dto.Orderdto;
 import java.util.List;
+
 public interface OrderService {
-    Order saveOrder(Order order);
-    List<Order> getAllOrders();
-    Order getOrderById(Long id);
-    Order updateOrder(Long id, Order order);
+    Orderdto saveOrder(Orderdto orderDto);
+    List<Orderdto> getAllOrders();
+    Orderdto getOrderById(Long id);
+    Orderdto updateOrder(Long id, Orderdto orderDto);
     void deleteOrder(Long id);
 }

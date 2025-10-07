@@ -12,21 +12,24 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private double price;
+    private Double price;
     private Integer quantity;
     private String category;
 
     @ManyToOne
     @JoinColumn(name = "supplier_id")
+
     private Supplier supplier;
 
     @ManyToMany(mappedBy = "products")
     @JsonIgnore
+
     private List<Order> orders = new ArrayList<>();
 }

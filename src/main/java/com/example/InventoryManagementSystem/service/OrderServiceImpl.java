@@ -1,13 +1,18 @@
 package com.example.InventoryManagementSystem.service;
 
+import com.example.InventoryManagementSystem.dto.Orderdto;
+import com.example.InventoryManagementSystem.dto.Productdto;
 import com.example.InventoryManagementSystem.entity.Order;
+import com.example.InventoryManagementSystem.entity.Product;
 import com.example.InventoryManagementSystem.exception.BadRequestException;
 import com.example.InventoryManagementSystem.exception.ResourceNotFoundException;
 import com.example.InventoryManagementSystem.repository.OrderRepo;
+import com.example.InventoryManagementSystem.repository.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -15,40 +20,112 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderRepo orderRepo;
 
-    public Order saveOrder(Order order) {
-        if (order.getCustomerName() == null || order.getCustomerName().isEmpty()) {
-            throw new BadRequestException("Customer name is required to place an order");
-        }
-        return orderRepo.save(order);
-    }
-    public List<Order> getAllOrders() {
-        return orderRepo.findAll();
-    }
-    public Order getOrderById(Long id) {
-        return orderRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
-    }
-    public Order updateOrder(Long id, Order orderDetails) {
-        Order order = orderRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+    @Autowired
+    private ProductRepo productRepo;
 
-        if (orderDetails.getCustomerName() != null && !orderDetails.getCustomerName().isEmpty()) {
-            order.setCustomerName(orderDetails.getCustomerName());
+    // ✅ Create Order
+    @Override
+    public Orderdto saveOrder(Orderdto orderDto) {
+        if (orderDto.getCustomerName() == null || orderDto.getCustomerName().isEmpty()) {
+            throw new BadRequestException("Customer name is required");
         }
-        if (orderDetails.getOrderDate() != null) {
-            order.setOrderDate(orderDetails.getOrderDate());
+
+        Order order = new Order();
+        order.setCustomerName(orderDto.getCustomerName());
+        order.setStatus(orderDto.getStatus());
+        order.setOrderDate(orderDto.getOrderDate());
+        order.setProductQuantities(orderDto.getProductQuantities() != null ? orderDto.getProductQuantities() : new HashMap<>());
+
+        if (orderDto.getProducts() != null && !orderDto.getProducts().isEmpty()) {
+            List<Long> productIds = orderDto.getProducts()
+                    .stream()
+                    .map(Productdto::getId)
+                    .toList();
+            List<Product> products = productRepo.findAllById(productIds);
+            order.setProducts(products);
         }
-        if (orderDetails.getProducts() != null && !orderDetails.getProducts().isEmpty()) {
-            order.setProducts(orderDetails.getProducts());
-        }
-        if (orderDetails.getProductQuantities() != null && !orderDetails.getProductQuantities().isEmpty()) {
-            order.setProductQuantities(orderDetails.getProductQuantities());
-        }
-        if (orderDetails.getStatus() != null && !orderDetails.getStatus().isEmpty()) {
-            order.setStatus(orderDetails.getStatus());
-        }
-        return orderRepo.save(order);
+
+        Order savedOrder = orderRepo.save(order);
+        return mapToOrderDto(savedOrder);
     }
+
+    // ✅ Get All Orders
+    @Override
+    public List<Orderdto> getAllOrders() {
+        return orderRepo.findAll()
+                .stream()
+                .map(this::mapToOrderDto)
+                .collect(Collectors.toList());
+    }
+
+    // ✅ Get Order by ID
+    @Override
+    public Orderdto getOrderById(Long id) {
+        Order order = orderRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+        return mapToOrderDto(order);
+    }
+
+    // ✅ Update Order
+    @Override
+    public Orderdto updateOrder(Long id, Orderdto orderDto) {
+        Order existingOrder = orderRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+
+        if (orderDto.getCustomerName() != null)
+            existingOrder.setCustomerName(orderDto.getCustomerName());
+        if (orderDto.getStatus() != null)
+            existingOrder.setStatus(orderDto.getStatus());
+
+        if (orderDto.getProducts() != null && !orderDto.getProducts().isEmpty()) {
+            List<Long> productIds = orderDto.getProducts()
+                    .stream()
+                    .map(Productdto::getId)
+                    .toList();
+            List<Product> products = productRepo.findAllById(productIds);
+            existingOrder.setProducts(products);
+        }
+
+        if (orderDto.getProductQuantities() != null && !orderDto.getProductQuantities().isEmpty()) {
+            Map<Long, Integer> updatedQuantities = new HashMap<>(existingOrder.getProductQuantities());
+            updatedQuantities.putAll(orderDto.getProductQuantities());
+            existingOrder.setProductQuantities(updatedQuantities);
+        }
+
+        Order updatedOrder = orderRepo.save(existingOrder);
+        return mapToOrderDto(updatedOrder);
+    }
+
+    // ✅ Delete Order
+    @Override
     public void deleteOrder(Long id) {
-        Order order = orderRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+        Order order = orderRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
         orderRepo.delete(order);
+    }
+
+    // ✅ Mapper: Entity → DTO
+    private Orderdto mapToOrderDto(Order order) {
+        List<Productdto> productDtos = order.getProducts() != null
+                ? order.getProducts().stream()
+                .map(product -> new Productdto(
+                        product.getId(),
+                        product.getName(),
+                        product.getPrice(),
+                        product.getQuantity(),
+                        product.getCategory(),
+                        product.getSupplier() != null ? product.getSupplier().getId() : null
+                ))
+                .toList()
+                : Collections.emptyList();
+
+        return new Orderdto(
+                order.getId(),
+                order.getCustomerName(),
+                order.getOrderDate(),
+                order.getStatus(),
+                productDtos,
+                order.getProductQuantities()
+        );
     }
 }

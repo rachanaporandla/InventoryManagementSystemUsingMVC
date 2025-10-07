@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Entity
-@Table(name = "customer_order")
+@Table(name = "orders")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,9 +20,15 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "customer_name")
     private String customerName;
+
+    @Column(name = "order_date")
     private LocalDate orderDate = LocalDate.now();
+
     private String status = "PENDING";
+
     @ManyToMany
     @JoinTable(
             name = "order_items",
@@ -40,13 +46,17 @@ public class Order {
     @Column(name = "quantity")
     private Map<Long, Integer> productQuantities = new HashMap<>();
 
-    public boolean isPending() {
+
+    public boolean isPending()
+    {
         return "PENDING".equalsIgnoreCase(this.status);
     }
-    public boolean isCompleted() {
+    public boolean isCompleted()
+    {
         return "COMPLETED".equalsIgnoreCase(this.status);
     }
-    public void completeOrder() {
+    public void completeOrder()
+    {
         this.status = "COMPLETED";
     }
 }

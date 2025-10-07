@@ -1,12 +1,16 @@
 package com.example.InventoryManagementSystem.service;
 
+import com.example.InventoryManagementSystem.dto.Supplierdto;
 import com.example.InventoryManagementSystem.entity.Supplier;
 import java.util.List;
 
 public interface SupplierService {
-    Supplier saveSupplier(Supplier supplier);
-    List<Supplier> getAllSuppliers();
-    Supplier getSupplierById(Long id);
-    Supplier updateSupplier(Long id, Supplier supplier);
+    Supplierdto saveSupplier(Supplierdto supplierDto);
+    List<Supplierdto> getAllSuppliers();
+    Supplierdto getSupplierById(Long id);
+    Supplierdto updateSupplier(Long id, Supplierdto supplierDto);
     void deleteSupplier(Long id);
+
+    // <-- Add this method to return entity
+    Supplier getSupplierEntityById(Long id);
 }

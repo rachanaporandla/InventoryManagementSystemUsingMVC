@@ -1,13 +1,15 @@
 package com.example.InventoryManagementSystem.service;
 
-import com.example.InventoryManagementSystem.entity.Product;
+import com.example.InventoryManagementSystem.dto.Productdto;
+
 import java.util.List;
 
 public interface ProductService {
-    Product saveProduct(Product product);
-    List<Product> getAllProducts();
-    Product getProductById(Long id);
-    Product updateProduct(Long id, Product productDetails);
+    Productdto saveProductDto(Productdto productdto);
+    List<Productdto> getAllProducts();
+    Productdto getProductByIdDto(Long id);
+    Productdto updateProductDto(Long id, Productdto productdto);
+    Productdto updateStockDto(Long id, Integer quantity);
     void deleteProduct(Long id);
-    Product updateStock(Long id, Integer quantity);
+    List<Productdto> getProductsByIds(List<Long> ids);
 }
