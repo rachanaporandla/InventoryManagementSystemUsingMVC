@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="dashboard">
+    <h1>Inventory Management System</h1>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('products', this)">Products</button>
+        <button class="tab-btn" onclick="showTab('suppliers', this)">Suppliers</button>
+        <button class="tab-btn" onclick="showTab('orders', this)">Orders</button>
+    </div>
+
+    <div id="products" class="tab-content">
+        <h2>Products</h2>
+        <table id="products-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Supplier</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="suppliers" class="tab-content" style="display:none;">
+        <h2>Suppliers</h2>
+        <table id="suppliers-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Contact</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="orders" class="tab-content" style="display:none;">
+        <h2>Orders</h2>
+        <table id="orders-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Status</th>
+                <th>Order Date</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
